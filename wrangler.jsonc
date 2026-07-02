@@ -1,0 +1,21 @@
+{
+  "name": "autojob",
+  "account_id": "fdff0097f60d7401ec6f5305bcc0122b",
+  "compatibility_date": "2026-06-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": ".open-next/worker.js",
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "autojob-db",
+      "database_id": "39ff88a9-f451-4f5e-aef7-bc53e9d95dc3"
+    }
+  ],
+  "vars": {
+    "GOOGLE_SHEETS_ID": "1r5S6t0uXlKyAvQEtaiXZgTmtKq9IF0JmupeSH50npso"
+  }
+}

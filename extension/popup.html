@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>AutoJob Auto-Apply</title>
+<style>
+  body { font: 13px -apple-system, system-ui, sans-serif; width: 300px; margin: 0; padding: 14px; background: #0f172a; color: #e2e8f0; }
+  h1 { font-size: 14px; margin: 0 0 10px; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+  .muted { color: #94a3b8; font-size: 11px; }
+  label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+  input { width: 100%; box-sizing: border-box; background: #0f172a; border: 1px solid #334155; color: #e2e8f0; border-radius: 6px; padding: 6px 8px; font-size: 12px; }
+  button { width: 100%; background: #6366f1; color: #fff; border: none; border-radius: 6px; padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 6px; }
+  button.secondary { background: #334155; }
+</style>
+</head>
+<body>
+  <h1>AutoJob Auto-Apply</h1>
+
+  <div class="card">
+    <div id="status" class="muted">Checking for a ready package…</div>
+  </div>
+
+  <div class="card">
+    <label for="backendUrl">AutoJob backend URL</label>
+    <input id="backendUrl" placeholder="http://localhost:3000" />
+    <button id="save">Save</button>
+  </div>
+
+  <button id="clear" class="secondary">Clear stored package</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>

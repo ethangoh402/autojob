@@ -61,6 +61,18 @@ function doPost(e) {
       return respond(true, "", "");
     }
 
+    // ── Action: log a tailored job application package ────────────────────────
+    if (action === "logApplication") {
+      logApplication(data);
+      return respond(true, "", "");
+    }
+
+    // ── Action: update apply status after the Chrome extension fills/submits ──
+    if (action === "updateApplicationStatus") {
+      updateApplicationStatus(data);
+      return respond(true, "", "");
+    }
+
     // ── Action: send / draft an email ────────────────────────────────────────
     var to      = data.to      || "";
     var subject = data.subject || "";
@@ -226,6 +238,79 @@ function logLinkedInConnect(data) {
     data.reply           || "",
     data.notes           || "",
   ]);
+}
+
+// ── Job application tracking (JD → tailored resume/cover letter → auto-apply) ──
+
+function getOrCreateApplicationsTab(ss) {
+  var tab = ss.getSheetByName("Applications");
+  if (tab) return tab;
+
+  tab = ss.insertSheet("Applications");
+  var headers = [
+    "Date Added", "Company", "Job Title", "Location", "Job URL", "Apply URL",
+    "Stage", "Resume Generated", "Cover Letter Generated", "Apply Status", "Applied At", "Notes"
+  ];
+  tab.getRange(1, 1, 1, headers.length).setValues([headers])
+     .setFontWeight("bold")
+     .setBackground("#1e293b")
+     .setFontColor("#f1f5f9");
+  tab.setFrozenRows(1);
+  var widths = [100, 160, 200, 120, 240, 240, 110, 120, 150, 110, 140, 200];
+  widths.forEach(function(w, i) { tab.setColumnWidth(i + 1, w); });
+  return tab;
+}
+
+// Called when the app generates a tailored resume + cover letter for a job posting
+function logApplication(data) {
+  var sheetId = PropertiesService.getScriptProperties().getProperty("SHEET_ID");
+  if (!sheetId) throw new Error("SHEET_ID not set in Script Properties");
+
+  var ss  = SpreadsheetApp.openById(sheetId);
+  var tab = getOrCreateApplicationsTab(ss);
+
+  tab.appendRow([
+    data.dateAdded   || new Date().toISOString().slice(0, 10),
+    data.company     || "",
+    data.jobTitle    || "",
+    data.location    || "",
+    data.jobUrl      || "",
+    data.applyUrl    || "",
+    data.stage       || "found",
+    data.resumeGenerated      ? "Yes" : "No",
+    data.coverLetterGenerated ? "Yes" : "No",
+    data.applyStatus || "Pending",
+    data.appliedAt   || "",
+    data.notes       || "",
+  ]);
+}
+
+// Called by the Chrome extension after it fills/submits an application form
+function updateApplicationStatus(data) {
+  var sheetId = PropertiesService.getScriptProperties().getProperty("SHEET_ID");
+  if (!sheetId) throw new Error("SHEET_ID not set in Script Properties");
+
+  var ss  = SpreadsheetApp.openById(sheetId);
+  var tab = getOrCreateApplicationsTab(ss);
+  var rows = tab.getDataRange().getValues();
+
+  var matchUrl = data.applyUrl || data.jobUrl || "";
+  for (var i = rows.length - 1; i >= 1; i--) {
+    if (rows[i][4] === matchUrl || rows[i][5] === matchUrl) {
+      tab.getRange(i + 1, 10).setValue(data.status || "Submitted");   // Apply Status
+      tab.getRange(i + 1, 11).setValue(data.appliedAt || new Date().toISOString()); // Applied At
+      if (data.status === "Submitted") tab.getRange(i + 1, 7).setValue("outreach_sent"); // Stage
+      if (data.notes) tab.getRange(i + 1, 12).setValue(data.notes);
+      return;
+    }
+  }
+
+  // No matching row found — log it fresh so nothing gets lost
+  logApplication({
+    company: data.company, jobTitle: data.jobTitle, jobUrl: data.jobUrl,
+    applyUrl: data.applyUrl, applyStatus: data.status, appliedAt: data.appliedAt || new Date().toISOString(),
+    notes: data.notes,
+  });
 }
 
 // ── Daily connect automation ──────────────────────────────────────────────────

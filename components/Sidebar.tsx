@@ -11,12 +11,14 @@ import {
   Building2,
   Zap,
   Mail,
+  Send,
 } from "lucide-react";
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/contacts", label: "Contacts", icon: Users },
   { href: "/applications", label: "Applications", icon: Briefcase },
+  { href: "/apply", label: "Apply", icon: Send },
   { href: "/outreach", label: "Email Outreach", icon: Mail },
   { href: "/company-watch", label: "Company Watch", icon: Building2 },
   { href: "/scraper", label: "Run Scraper", icon: Search },

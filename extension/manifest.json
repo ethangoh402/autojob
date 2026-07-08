@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "AutoJob Auto-Apply",
+  "version": "0.1.0",
+  "description": "Picks up resumes/cover letters tailored by AutoJob and auto-fills + submits job application forms.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AutoJob Auto-Apply"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost/*",
+        "http://localhost:*/*",
+        "http://127.0.0.1:*/*",
+        "https://autojob.pages.dev/*",
+        "https://*.autojob.pages.dev/*"
+      ],
+      "js": ["bridge.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}

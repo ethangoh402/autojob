@@ -27,6 +27,13 @@ CREATE TABLE IF NOT EXISTS applications (
   connect_sent_at TEXT,
   dm_sent_at TEXT,
   email_sent_at TEXT,
+  description TEXT,                      -- full job description text (parsed from link or screenshot)
+  requirements TEXT,                      -- JSON array of key requirements
+  apply_url TEXT,                         -- URL of the actual application form, if different from job_url
+  resume_generated INTEGER DEFAULT 0,     -- 0/1 — tailored resume PDF was generated
+  cover_letter_generated INTEGER DEFAULT 0, -- 0/1 — tailored cover letter PDF was generated
+  apply_status TEXT DEFAULT 'none',       -- none | pending | submitted | failed
+  applied_at TEXT,                        -- when the Chrome extension submitted the application
   last_activity_at TEXT,
   notes TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),

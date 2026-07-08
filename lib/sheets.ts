@@ -72,6 +72,100 @@ export async function appendOutreachRow(params: {
   }
 }
 
+export interface ApplicationRow {
+  dateAdded: string;
+  company: string;
+  jobTitle: string;
+  location: string;
+  jobUrl: string;
+  applyUrl: string;
+  stage: string;
+  resumeGenerated: boolean;
+  coverLetterGenerated: boolean;
+  applyStatus: string; // "Pending" | "Submitted" | "Failed"
+  appliedAt: string;
+  notes: string;
+}
+
+export async function appendApplicationRow(params: {
+  row: ApplicationRow;
+  appsScriptUrl: string;
+  appsScriptToken: string;
+}): Promise<void> {
+  const res = await fetch(params.appsScriptUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action:                "logApplication",
+      token:                 params.appsScriptToken,
+      dateAdded:             params.row.dateAdded,
+      company:               params.row.company,
+      jobTitle:              params.row.jobTitle,
+      location:              params.row.location,
+      jobUrl:                params.row.jobUrl,
+      applyUrl:              params.row.applyUrl,
+      stage:                 params.row.stage,
+      resumeGenerated:       params.row.resumeGenerated,
+      coverLetterGenerated:  params.row.coverLetterGenerated,
+      applyStatus:           params.row.applyStatus,
+      appliedAt:             params.row.appliedAt,
+      notes:                 params.row.notes,
+    }),
+    signal: AbortSignal.timeout(30_000),
+    redirect: "follow",
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Apps Script application log failed (${res.status}): ${text}`);
+  }
+
+  const data: { success: boolean; error: string } = await res.json();
+  if (!data.success) {
+    throw new Error(`Apps Script application error: ${data.error}`);
+  }
+}
+
+export async function updateApplicationStatus(params: {
+  jobUrl?: string;
+  applyUrl?: string;
+  company?: string;
+  jobTitle?: string;
+  status: "Submitted" | "Failed";
+  appliedAt?: string;
+  notes?: string;
+  appsScriptUrl: string;
+  appsScriptToken: string;
+}): Promise<void> {
+  const res = await fetch(params.appsScriptUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action:    "updateApplicationStatus",
+      token:     params.appsScriptToken,
+      jobUrl:    params.jobUrl ?? "",
+      applyUrl:  params.applyUrl ?? "",
+      company:   params.company ?? "",
+      jobTitle:  params.jobTitle ?? "",
+      status:    params.status,
+      appliedAt: params.appliedAt ?? new Date().toISOString(),
+      notes:     params.notes ?? "",
+    }),
+    signal: AbortSignal.timeout(30_000),
+    redirect: "follow",
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Apps Script status update failed (${res.status}): ${text}`);
+  }
+
+  const data: { success: boolean; error: string } = await res.json();
+  if (!data.success) {
+    throw new Error(`Apps Script status update error: ${data.error}`);
+  }
+}
+
 export async function appendLinkedInConnect(params: {
   row: LinkedInConnectRow;
   appsScriptUrl: string;
